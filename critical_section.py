@@ -27,12 +27,7 @@ class CriticalSectionService(rpyc.Service):
 
   def exposed_acquire_critical_section(self, process_port: int) -> bool:
     # First acquire the critical section
-    if not self.critical_section.acquire_by_process_port(process_port):
-      return False
-
-    # Then create a thread to release it after a time interval
-    _thread.start_new_thread(self.critical_section.release_after_interval, ())
-    return True
+    return self.critical_section.acquire_by_process_port(process_port)
 
   def exposed_get_release_interval(self) -> Tuple[int, int]:
     return self.critical_section.release_interval
@@ -57,24 +52,33 @@ class CriticalSection:
     t.start()
 
   def acquire_by_process_port(self, process_port: int):
-    # When acquiring the critical section no process should have access to it
-    if self.process_port is not None:
+    # When acquiring the critical section, it should be available
+    if self.state != 'AVAILABLE':
       return False
 
+    assert(self.process_port is None)
+
+    # Set the critical section as ACQUIRED and set the process port that
+    # acquired it
     self.state = 'ACQUIRED'
     self.process_port = process_port
+
+    # Then create a thread to release it after a time interval
+    _thread.start_new_thread(self.release_after_interval, ())
+
     return True
 
   def release(self):
     assert(self.process_port is not None)
 
-    # Connect to the process and tell it to release the critical section
-    process.rpyc_exec(
-        self.process_port, lambda conn: conn.root.exposed_release_critical_section())
-
     # Mark the critical section as released
     self.state = 'AVAILABLE'
+
+    release_process_port = self.process_port
     self.process_port = None
+    # Connect to the process and tell it to release the critical section
+    process.rpyc_exec(
+        release_process_port, lambda conn: conn.root.exposed_release_critical_section())
 
   def release_after_interval(self):
     # Pick release interval as random int from the interval
