@@ -29,7 +29,6 @@ class CriticalSectionService(rpyc.Service):
     # First acquire the critical section
     if not self.critical_section.acquire_by_process_port(process_port):
       return False
-    print('critical section acquired')
 
     # Then create a thread to release it after a time interval
     _thread.start_new_thread(self.critical_section.release_after_interval, ())
