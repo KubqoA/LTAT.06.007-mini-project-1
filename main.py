@@ -1,7 +1,6 @@
-from os import environ
 import sys
 from typing import Callable, Dict, List
-from helpers import handle_cmd_with_int_argument
+from helpers import handle_cmd_with_int_argument, is_debug
 import process
 import critical_section
 from functools import partial
@@ -101,7 +100,7 @@ if __name__ == '__main__':
 
     # Special acquire command for testing and debugging purposes
     # Forces, if pre-conditions are met, the specified process id to acquire critical section
-    if environ.get('DEBUG', 'false') == 'true':
+    if is_debug():
       handlers['acquire'] = handle_cmd_with_int_argument(
           user_input, partial(acquire, processes_ports), 'acquire [id]')
 

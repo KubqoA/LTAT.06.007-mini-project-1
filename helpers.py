@@ -1,3 +1,4 @@
+from os import environ
 from typing import Callable, Union, TypeVar
 
 
@@ -10,3 +11,7 @@ def handle_cmd_with_int_argument(input: str, fn: Callable[[int], R], usage: str)
 
   arg = int(input.split(' ')[1])
   return lambda: fn(arg)
+
+
+def is_debug() -> bool:
+  return environ.get('DEBUG', 'false') == 'true'
