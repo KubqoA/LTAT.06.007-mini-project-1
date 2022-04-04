@@ -1,14 +1,8 @@
 import sys
 from typing import Callable, Dict, List
-from helpers import handle_cmd_with_int_argument
-from process import Process, ProcessServiceType
+from helpers import handle_cmd_with_int_argument, connect_and_execute_on_port
+from process import Process
 from functools import partial
-import rpyc
-
-
-def connect_and_execute_on_port(port: int, fn: Callable[[ProcessServiceType], None]) -> None:
-  conn = rpyc.connect('localhost', port)
-  fn(conn)
 
 
 def list(processes_ports: List[int]):

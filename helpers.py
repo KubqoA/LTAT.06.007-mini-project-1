@@ -1,4 +1,10 @@
 from typing import Callable, TypeVar, Union
+from process import ProcessServiceType
+import rpyc
+
+def connect_and_execute_on_port(port: int, fn: Callable[[ProcessServiceType], None]) -> None:
+  conn = rpyc.connect('localhost', port)
+  fn(conn)
 
 
 R = TypeVar("R")
