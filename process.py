@@ -2,7 +2,7 @@ import rpyc
 from rpyc.utils.server import ThreadedServer
 from typing import List, Literal
 import _thread
-from typing import Callable, TypeVar
+from typing import Callable
 import rpyc
 import critical_section
 from helpers import R
@@ -20,15 +20,15 @@ class ProcessServiceType:
 
 class ProcessService(rpyc.Service):
   def __init__(self, process: 'Process') -> None:
-      super().__init__()
-      self.process = process
+    super().__init__()
+    self.process = process
 
   def exposed_get_state(self):
     return self.process.state
-  
+
   def exposed_get_id(self):
     return self.process.id
-  
+
   def exposed_release_critical_section(self):
     return self.process.release_critical_section()
 
@@ -49,11 +49,11 @@ class Process:
 
   def release_critical_section(self):
     self.state = 'DO-NOT-WANT'
-  
+
   # starts a thread that runs the process's ThreadedServer
   def start(self):
     _thread.start_new_thread(self.run, ())
-  
+
   def run(self):
-    t=ThreadedServer(ProcessService(self), port=self.port)
+    t = ThreadedServer(ProcessService(self), port=self.port)
     t.start()

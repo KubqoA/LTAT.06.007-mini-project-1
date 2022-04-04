@@ -8,7 +8,8 @@ from functools import partial
 
 def list(processes_ports: List[int]):
   for port in processes_ports:
-    process.rpyc_exec(port, lambda conn: print("P%d: %s" % (conn.root.exposed_get_id(), conn.root.exposed_get_state())))
+    process.rpyc_exec(port, lambda conn: print("P%d: %s" % (
+        conn.root.exposed_get_id(), conn.root.exposed_get_state())))
 
 
 def set_time_to_critical_section(processes_ports: List[int], time: int):
@@ -33,7 +34,7 @@ def launch_processes(n: int, basePort: int = 18812) -> List[int]:
   return ports
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
   # Check for correctness of provided arguments
   if len(sys.argv) != 2 or not sys.argv[1].isdigit():
     print("Usage: %s [number_of_processes]" % sys.argv[0], file=sys.stderr)
@@ -56,12 +57,13 @@ if __name__=='__main__':
 
     # Define the handlers for commands
     handlers: Dict[str, Callable[[], None]] = {
-      'help': lambda: print('Supported commands: list, time-cs [t], time-p [t], help, exit'),
-      'exit': lambda: sys.exit(0),
-      'list': partial(list, processes_ports),
-      'time-cs': handle_cmd_with_int_argument(user_input, partial(set_time_to_critical_section, processes_ports), 'time-cs [t]'),
-      'time-p': handle_cmd_with_int_argument(user_input, partial(set_time_out_interval, processes_ports), 'time-p [t]'),
+        'help': lambda: print('Supported commands: list, time-cs [t], time-p [t], help, exit'),
+        'exit': lambda: sys.exit(0),
+        'list': partial(list, processes_ports),
+        'time-cs': handle_cmd_with_int_argument(user_input, partial(set_time_to_critical_section, processes_ports), 'time-cs [t]'),
+        'time-p': handle_cmd_with_int_argument(user_input, partial(set_time_out_interval, processes_ports), 'time-p [t]'),
     }
 
     # Execute appropriate handler or print error message
-    handlers.get(cmd, lambda: len(cmd) > 0 and not cmd.isspace() and print('%s: command not found' % cmd))()
+    handlers.get(cmd, lambda: len(cmd) > 0 and not cmd.isspace()
+                 and print('%s: command not found' % cmd))()
