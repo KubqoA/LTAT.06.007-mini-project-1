@@ -14,14 +14,14 @@ def list(processes_ports: List[int]):
 
 def set_time_to_critical_section(critical_section_port: int, interval_upper_bound: int):
   [interval_start, _] = critical_section.rpyc_exec(
-      critical_section_port, lambda conn: conn.root.exposed_get_time_interval())
+      critical_section_port, lambda conn: conn.root.exposed_get_release_interval())
   if interval_upper_bound < interval_start:
-    print('New interval upper bound cannot be lower than the interval start')
+    print('New release interval upper bound cannot be lower than the interval start')
     return
 
   interval = critical_section.rpyc_exec(
-      critical_section_port, lambda conn: conn.root.exposed_set_time_interval_upper_bound(interval_upper_bound))
-  print('Interval changed, current interval:', interval)
+      critical_section_port, lambda conn: conn.root.exposed_set_release_interval_upper_bound(interval_upper_bound))
+  print('Release interval changed, current interval:', interval)
 
 
 def set_time_out_interval(processes_ports: List[int], timeout: int):

@@ -35,17 +35,17 @@ class CriticalSectionService(rpyc.Service):
     _thread.start_new_thread(self.critical_section.release_after_interval, ())
     return True
 
-  def exposed_get_time_interval(self) -> Tuple[int, int]:
-    return self.critical_section.time_interval
+  def exposed_get_release_interval(self) -> Tuple[int, int]:
+    return self.critical_section.release_interval
 
-  def exposed_set_time_interval_upper_bound(self, interval_upper_bound: int) -> Tuple[int, int]:
-    return self.critical_section.set_new_interval_upper_bound(interval_upper_bound)
+  def exposed_set_release_interval_upper_bound(self, interval_upper_bound: int) -> Tuple[int, int]:
+    return self.critical_section.set_release_interval_upper_bound(interval_upper_bound)
 
 
 class CriticalSection:
   def __init__(self, port: int) -> None:
     self.port = port
-    self.time_interval: Tuple[int, int] = [10, 10]
+    self.release_interval: Tuple[int, int] = [10, 10]
     self.state: Literal['AVAILABLE', 'ACQUIRED'] = 'AVAILABLE'
     self.process_port: Optional[int] = None
 
@@ -79,13 +79,13 @@ class CriticalSection:
 
   def release_after_interval(self):
     # Pick release interval as random int from the interval
-    release_time = random.choice(
-        range(self.time_interval[0], self.time_interval[1] + 1))
-    sleep(release_time)
+    release = random.choice(
+        range(self.release_interval[0], self.release_interval[1] + 1))
+    sleep(release)
 
     # After the interval release the critical section
     self.release()
 
-  def set_new_interval_upper_bound(self, interval_upper_bound: int):
-    self.time_interval = [self.time_interval[0], interval_upper_bound]
-    return self.time_interval
+  def set_release_interval_upper_bound(self, interval_upper_bound: int):
+    self.release_interval = [self.release_interval[0], interval_upper_bound]
+    return self.release_interval
