@@ -12,9 +12,16 @@ def list(processes_ports: List[int]):
         conn.root.exposed_get_id(), conn.root.exposed_get_state())))
 
 
-def set_time_to_critical_section(processes_ports: List[int], time: int):
-  print('set_time_to_critical_section: %d' % time)
-  pass
+def set_time_to_critical_section(critical_section_port: int, interval_upper_bound: int):
+  [interval_start, _] = critical_section.rpyc_exec(
+      critical_section_port, lambda conn: conn.root.exposed_get_time_interval())
+  if interval_upper_bound < interval_start:
+    print('New interval upper bound cannot be lower than the interval start')
+    return
+
+  interval = critical_section.rpyc_exec(
+      critical_section_port, lambda conn: conn.root.exposed_set_time_interval_upper_bound(interval_upper_bound))
+  print('Interval changed, current interval:', interval)
 
 
 def set_time_out_interval(processes_ports: List[int], timeout: int):
@@ -31,7 +38,7 @@ def launch_processes(n: int, basePort: int = 18812) -> List[int]:
   ports = [basePortForProcesses + id for id in range(0, n)]
   for id, port in enumerate(ports):
     process.Process(id, port, ports[:id]+ports[id+1:], basePort).start()
-  return ports
+  return [basePort, ports]
 
 
 if __name__ == '__main__':
@@ -42,7 +49,7 @@ if __name__ == '__main__':
 
   n = int(sys.argv[1])
   print("Launching %d processes" % n)
-  processes_ports = launch_processes(n)
+  [critical_section_port, processes_ports] = launch_processes(n)
 
   # Start= the command line interface
   while True:
@@ -60,7 +67,7 @@ if __name__ == '__main__':
         'help': lambda: print('Supported commands: list, time-cs [t], time-p [t], help, exit'),
         'exit': lambda: sys.exit(0),
         'list': partial(list, processes_ports),
-        'time-cs': handle_cmd_with_int_argument(user_input, partial(set_time_to_critical_section, processes_ports), 'time-cs [t]'),
+        'time-cs': handle_cmd_with_int_argument(user_input, partial(set_time_to_critical_section, critical_section_port), 'time-cs [t]'),
         'time-p': handle_cmd_with_int_argument(user_input, partial(set_time_out_interval, processes_ports), 'time-p [t]'),
     }
 

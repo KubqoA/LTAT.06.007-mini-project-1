@@ -29,6 +29,10 @@ class ProcessService(rpyc.Service):
   def exposed_get_id(self):
     return self.process.id
 
+  # For testing purposes
+  # def exposed_acquire_critical_section(self):
+  #   self.process.acquire_critical_section()
+
   def exposed_release_critical_section(self):
     return self.process.release_critical_section()
 
