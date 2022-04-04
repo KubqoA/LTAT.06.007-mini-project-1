@@ -1,11 +1,10 @@
 import random
-from time import sleep
 import rpyc
 from rpyc.utils.server import ThreadedServer
-from typing import List, Literal, Set, Tuple
+from time import sleep
+from typing import Callable, List, Literal, Set, Tuple
 import _thread
-from typing import Callable
-import rpyc
+
 import critical_section
 from helpers import R, is_debug
 

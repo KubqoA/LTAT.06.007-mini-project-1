@@ -1,9 +1,10 @@
+from functools import partial
 import sys
 from typing import Callable, Dict, List
+
 from helpers import handle_cmd_with_int_argument, is_debug
 import process
 import critical_section
-from functools import partial
 
 
 def list(processes_ports: List[int]):

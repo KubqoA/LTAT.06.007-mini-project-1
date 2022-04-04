@@ -1,11 +1,12 @@
 import random
-from time import sleep
 import rpyc
 from rpyc.utils.server import ThreadedServer
+from time import sleep
 from typing import Callable, Literal, Optional, Tuple
 import _thread
-import process
+
 from helpers import R
+import process
 
 
 def rpyc_exec(port: int, fn: Callable[['CriticalSectionServiceType'], R]) -> R:
