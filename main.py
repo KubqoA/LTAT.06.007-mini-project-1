@@ -64,8 +64,9 @@ if __name__ == '__main__':
 
     # Define the handlers for commands
     handlers: Dict[str, Callable[[], None]] = {
-        'help': lambda: print('Supported commands: list, time-cs [t], time-p [t], help, exit'),
+        'help': lambda: print('Supported commands: list, time-cs [t], time-p [t], help, whoami, exit'),
         'exit': lambda: sys.exit(0),
+        'whoami': lambda: print('Jakub Arbet, C20301'),
         'list': partial(list, processes_ports),
         'time-cs': handle_cmd_with_int_argument(user_input, partial(set_time_to_critical_section, critical_section_port), 'time-cs [t]'),
         'time-p': handle_cmd_with_int_argument(user_input, partial(set_time_out_interval, processes_ports), 'time-p [t]'),
