@@ -1,13 +1,14 @@
 import sys
 from typing import Callable, Dict, List
-from helpers import handle_cmd_with_int_argument, connect_and_execute_on_port
-from process import Process
+from helpers import handle_cmd_with_int_argument
+import process
+import critical_section
 from functools import partial
 
 
 def list(processes_ports: List[int]):
   for port in processes_ports:
-    connect_and_execute_on_port(port, lambda conn: print("P%d: %s" % (conn.root.exposed_get_id(), conn.root.exposed_get_state())))
+    process.rpyc_exec(port, lambda conn: print("P%d: %s" % (conn.root.exposed_get_id(), conn.root.exposed_get_state())))
 
 
 def set_time_to_critical_section(processes_ports: List[int], time: int):
@@ -21,9 +22,14 @@ def set_time_out_interval(processes_ports: List[int], timeout: int):
 
 
 def launch_processes(n: int, basePort: int = 18812) -> List[int]:
-  ports = [basePort + id for id in range(0, n)]
+  # First start the service for the critical section
+  critical_section.CriticalSection(basePort).start()
+
+  # Then start the processes
+  basePortForProcesses = basePort + 1
+  ports = [basePortForProcesses + id for id in range(0, n)]
   for id, port in enumerate(ports):
-    Process(id, port, ports[:id]+ports[id+1:]).start()
+    process.Process(id, port, ports[:id]+ports[id+1:], basePort).start()
   return ports
 
 
